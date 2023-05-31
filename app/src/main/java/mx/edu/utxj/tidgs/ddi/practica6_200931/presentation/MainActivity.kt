@@ -28,9 +28,7 @@ import mx.edu.utxj.tidgs.ddi.practica6_200931.presentation.theme.Practica6_20093
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            WearApp("Android")
-        }
+        setContentView(R.layout.activity_main)
     }
 }
 

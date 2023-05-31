@@ -27,6 +27,9 @@
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="0" />
         </service>
+
+
+
         <service
             android:name=".tile.MainTileService"
             android:exported="true"
