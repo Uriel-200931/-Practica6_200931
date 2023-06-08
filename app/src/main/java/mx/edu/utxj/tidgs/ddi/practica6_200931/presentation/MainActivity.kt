@@ -4,6 +4,7 @@
  * changes to the libraries and their usages.
  */
 
+
 package mx.edu.utxj.tidgs.ddi.practica6_200931.presentation
 
 import android.os.Bundle
@@ -30,7 +31,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity() { // Reemplaza con el nombre de tu Activity
     private var mHandler: Handler? = null
     private var mRunnable: Runnable? = null
 
@@ -41,7 +42,7 @@ class MainActivity : ComponentActivity() {
         mHandler = Handler()
         mRunnable = Runnable {
             updateTime()
-            mRunnable?.let { mHandler?.postDelayed(it, 1000) } // Actualiza cada segundo
+            mRunnable?.let { mHandler?.postDelayed(it, 1000) }
         }
 
     }
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity() {
 
         val currentTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
 
-        timeTextView.text = currentTime
+        timeTextView.text = currentTime // Actualiza el TextView con la hora actual
     }
     override fun onResume() {
         super.onResume()
@@ -67,35 +68,35 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun WearApp(greetingName: String) {
+fun WearApp(greetingName: String) { // receives the greeting name from the WearApp composable
     Practica6_200931Theme {
         /* If you have enough items in your list, use [ScalingLazyColumn] which is an optimized
          * version of LazyColumn for wear devices with some added features. For more information,
          * see d.android.com/wear/compose.
          */
         Column(
-                modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colors.background),
-                verticalArrangement = Arrangement.Center
+            modifier = Modifier
+                .fillMaxSize() // fill the entire screen
+                .background(MaterialTheme.colors.background), // background color
+            verticalArrangement = Arrangement.Center // centers the content vertically
         ) {
-            Greeting(greetingName = greetingName)
+            Greeting(greetingName = greetingName) // pass the greeting name to the Greeting composable
         }
     }
 }
 
 @Composable
-fun Greeting(greetingName: String) {
+fun Greeting(greetingName: String) { // receives the greeting name from the WearApp composable
     Text(
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colors.primary,
-            text = stringResource(R.string.hello_world, greetingName)
+        modifier = Modifier.fillMaxWidth(), // fill the entire width
+        textAlign = TextAlign.Center, // centers the text
+        color = MaterialTheme.colors.primary, // uses the primary color from the theme
+        text = stringResource(R.string.hello_world, greetingName) // gets the string from the resources
     )
 }
 
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
+@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true) // preview for a small round watch
 @Composable
 fun DefaultPreview() {
-    WearApp("Preview Android")
+    WearApp("Preview Android") // pass the greeting name to the WearApp composable
 }
