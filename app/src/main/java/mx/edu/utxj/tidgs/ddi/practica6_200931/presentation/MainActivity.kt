@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() { // Reemplaza con el nombre de tu Acti
             in 12..20 -> "Buenas tardes!"
             else -> "Buenas noches!"
         }
+
         saludoTextView.text = saludo
 
         handler = Handler()
