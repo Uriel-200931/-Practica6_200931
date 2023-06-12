@@ -71,6 +71,8 @@ class MainActivity : ComponentActivity() { // Reemplaza con el nombre de tu Acti
             }
         }
     }
+
+
     override fun onResume() {
         super.onResume()
         handler.post(updateTimeRunnable)
