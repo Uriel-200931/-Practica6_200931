@@ -50,9 +50,9 @@ class MainActivity : ComponentActivity() { // Reemplaza con el nombre de tu Acti
         val calendar = Calendar.getInstance()
         val hourOfDay = calendar.get(Calendar.HOUR_OF_DAY)
         val saludo: String = when(hourOfDay) {
-            in 4..12 -> "Buenos días!"
-            in 12..20 -> "Buenas tardes!"
-            else -> "Buenas noches!"
+            in 4..12 -> " GOOD MORNING!"
+            in 12..20 -> "GODD AFTERNOON!"
+            else -> "GOOD NIGHT!"
         }
 
         saludoTextView.text = saludo
