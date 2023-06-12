@@ -28,10 +28,15 @@ import androidx.wear.compose.material.Text
 import mx.edu.utxj.tidgs.ddi.practica6_200931.R
 import mx.edu.utxj.tidgs.ddi.practica6_200931.presentation.theme.Practica6_200931Theme
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 class MainActivity : ComponentActivity() { // Reemplaza con el nombre de tu Activity
+    private lateinit var clockTextView: TextView
+    private lateinit var saludoTextView: TextView
+    private lateinit var handler: Handler
+    private lateinit var updateTimeRunnable: Runnable
     private var mHandler: Handler? = null
     private var mRunnable: Runnable? = null
 
@@ -39,64 +44,38 @@ class MainActivity : ComponentActivity() { // Reemplaza con el nombre de tu Acti
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mHandler = Handler()
-        mRunnable = Runnable {
-            updateTime()
-            mRunnable?.let { mHandler?.postDelayed(it, 1000) }
+
+        clockTextView = findViewById(R.id.clockTextView)
+        saludoTextView = findViewById(R.id.saludo)
+        val calendar = Calendar.getInstance()
+        val hourOfDay = calendar.get(Calendar.HOUR_OF_DAY)
+        val saludo: String = when(hourOfDay) {
+            in 4..12 -> "Buenos días!"
+            in 12..20 -> "Buenas tardes!"
+            else -> "Buenas noches!"
         }
+        saludoTextView.text = saludo
 
-    }
+        handler = Handler()
+        updateTimeRunnable = object : Runnable {
+            override fun run() {
+                val currentTime = Calendar.getInstance().time
+                val dateFormat =  SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+                val formattedTime = dateFormat.format(currentTime)
+                clockTextView.text = formattedTime
 
-    private fun updateTime() {
-        val timeTextView = findViewById<TextView>(R.id.textView1) // Reemplaza con el ID de tu TextView
-
-        val currentTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
-
-        timeTextView.text = currentTime // Actualiza el TextView con la hora actual
+                // Se actualiza después de 1 segundo
+                saludoTextView.text = saludo
+                handler.postDelayed(this, 1000)
+            }
+        }
     }
     override fun onResume() {
         super.onResume()
-        mRunnable?.let { mHandler?.post(it) }
+        handler.post(updateTimeRunnable)
     }
-
     override fun onPause() {
         super.onPause()
-        mRunnable?.let { mHandler?.removeCallbacks(it) }
+        handler.removeCallbacks(updateTimeRunnable)
     }
-
-
-}
-
-@Composable
-fun WearApp(greetingName: String) { // receives the greeting name from the WearApp composable
-    Practica6_200931Theme {
-        /* If you have enough items in your list, use [ScalingLazyColumn] which is an optimized
-         * version of LazyColumn for wear devices with some added features. For more information,
-         * see d.android.com/wear/compose.
-         */
-        Column(
-            modifier = Modifier
-                .fillMaxSize() // fill the entire screen
-                .background(MaterialTheme.colors.background), // background color
-            verticalArrangement = Arrangement.Center // centers the content vertically
-        ) {
-            Greeting(greetingName = greetingName) // pass the greeting name to the Greeting composable
-        }
-    }
-}
-
-@Composable
-fun Greeting(greetingName: String) { // receives the greeting name from the WearApp composable
-    Text(
-        modifier = Modifier.fillMaxWidth(), // fill the entire width
-        textAlign = TextAlign.Center, // centers the text
-        color = MaterialTheme.colors.primary, // uses the primary color from the theme
-        text = stringResource(R.string.hello_world, greetingName) // gets the string from the resources
-    )
-}
-
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true) // preview for a small round watch
-@Composable
-fun DefaultPreview() {
-    WearApp("Preview Android") // pass the greeting name to the WearApp composable
 }
