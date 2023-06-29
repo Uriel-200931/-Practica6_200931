@@ -13,34 +13,23 @@ import android.os.Bundle
 import android.os.Handler
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Text
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.launch
 import mx.edu.utxj.tidgs.ddi.practica6_200931.R
-import mx.edu.utxj.tidgs.ddi.practica6_200931.presentation.theme.Practica6_200931Theme
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import mx.edu.utxj.tidgs.ddi.practica6_200931.presentation.WeatherData
+
+
+
 
 class MainActivity : ComponentActivity() { // Reemplaza con el nombre de tu Activity
     private lateinit var clockTextView: TextView
@@ -51,14 +40,24 @@ class MainActivity : ComponentActivity() { // Reemplaza con el nombre de tu Acti
     private var mRunnable: Runnable? = null
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
 
+
+
     private var fusedLocationClient: FusedLocationProviderClient? = null
     private var locationCallback: LocationCallback? = null
 
+    private val retrofit: Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.openweathermap.org/data/2.5/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    private val weatherApi: WeatherApi = retrofit.create(WeatherApi::class.java)
+    private val apiKey = "9a0695fc78bfb244df31e9b3287d71e0"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
@@ -75,6 +74,11 @@ class MainActivity : ComponentActivity() { // Reemplaza con el nombre de tu Acti
 
                     saludosTextView.text = "Latitud: $latitude"
                     lolTextView.text = "Longitud: $longitude"
+
+                    // Llamar a la función getWeather dentro de una coroutine
+                    lifecycleScope.launch {
+                        getWeatherData(latitude, longitude)
+                    }
                 }
             }
         }
@@ -84,6 +88,9 @@ class MainActivity : ComponentActivity() { // Reemplaza con el nombre de tu Acti
             /*updateTime()
             mRunnable?.let { mHandler?.postDelayed(it, 1000) }*/ // Actualiza cada segundo
         }
+
+
+
 
     }
 
@@ -134,4 +141,30 @@ class MainActivity : ComponentActivity() { // Reemplaza con el nombre de tu Acti
             }
         }
     }
+
+    private suspend fun getWeatherData(latitude: Double, longitude: Double) {
+        val response = weatherApi.getWeather(latitude, longitude, apiKey)
+        if (response.isSuccessful) {
+            val weatherData = response.body()
+            val temperature = weatherData.getTemperature()
+
+            // Actualiza la vista con la temperatura
+            updateTemperatureView(temperature)
+        } else {
+            // Manejar error de solicitud a la API
+        }
+    }
+
+    private fun WeatherData?.getTemperature(): Float {
+        val defaultTemperature = 0f
+        return this?.tiempo?.getOrNull(0)?.main?.temp ?: defaultTemperature
+    }
+
+
+
+    private fun updateTemperatureView(temperature: Float) {
+        val temperatureTextView = findViewById<TextView>(R.id.temperatureTextView)
+        temperatureTextView.text = getString(R.string.temperature_format, temperature)
+    }
+
 }
